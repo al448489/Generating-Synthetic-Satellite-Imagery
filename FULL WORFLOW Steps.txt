@@ -1,0 +1,79 @@
+**FULL WORKFLOW**
+
+This is the the list of steps written with bashes for a Linux environment. 
+Please consider this in case you are using a different envirnoment from Linux
+
+You will need to modify the bashed paths in order for them to work with your own paths and files' names.
+
+=================================================
+
+# 1. TRAINING FOR Z1
+
+There are many options you can specify. Please use `python train.py --help`. The specified options are printed to the console. To specify the number of GPUs to utilize, use `--gpu_ids`. If you want to use the second and third GPUs for example, use `--gpu_ids 1,2`
+
+python3 train.py --name z1 --dataset_mode ins --label_dir <YOUR.PATH/Originals/map> --image_dir <YOUR.PATH/Originals/real> --instance_dir <YOUR.PATH/Originals/ins> --label_nc 8 --load_size 256 --crop_size 256 --niter_decay 20 --use_vae --ins_edge --batchSize 16
+
+# 2. TEST Z1
+
+This script will créate a directory with the results for z1 image-to-image training. Therefore this are not the final results when creating a fictitious place from a polygon map.
+
+python3 test.py --name z1 --dataset_mode insgb --dataset_mode ins --label_dir <YOUR.PATH/Originals/map> --image_dir <YOUR.PATH/Originals/real> --instance_dir <YOUR.PATH/Originals/ins> --label_nc 8 --how_many 999999 --which_epoch latest --results_dir ./z1_output --use_vae --coord_row_major --phase test --no_flip
+
+# 3. BUILD Z2 FROM Z1
+
+This script builds a coarser "stage 2" (z2) dataset by grouping small z1 tiles into bigger mosaics, and at the same time creates low‑res color guidance images from the "stage‑1" (z1) synthesized outputs.
+
+python3 build_z2_from_z1_tiles.py   --z1_real_dir <YOUR.PATH/Originals/real>   --z1_map_dir  <YOUR.PATH/Originals/map>    --z1_ins_dir  <YOUR.PATH/Originals/ins>   --z1_synth_dir <YOUR.PATH/z1_output/.../synthesized_image>   --z2_out_root <YOUR.PATH/z2_dataset>   --block 2   --tile_size 256   --guidance_size 64   --order row --name_mode coord
+
+# 4. TRAINING FOR Z > 1
+
+Depending on your own Project, if you want a lower zoom (further from the ground) of your sattelite image, you will need to use this training for CG.
+
+python3 trainCG.py --name  z2_cg_b16 --dataset_mode insgb --label_dir <YOUR.PATH/z2_dataset/map> --image_dir <YOUR.PATH/z2_dataset/real> --instance_dir <YOUR.PATH/z2_dataset/ins> --label_nc 8 --load_size 256 --crop_size 256 --niter_decay 20 --ins_edge --cg --netG spadebranchn --cg_size 256 --gbk_size 8
+
+# 5. TEST CG
+
+python3 testCG.py --name z2_cg_b16 --dataset_mode insgb --label_dir <YOUR.PATH/z2_dataset/map> --image_dir <YOUR.PATH/z2_dataset/real> --instance_dir <YOUR.PATH/z2_dataset/ins> --how_many 999999 --load_size 256 --label_nc 8 --ins_edge --cg --netG spadebranchn --cg_size 256 --gbk_size 8 --results_dir <YOUR.PATH/z2_output> --which_epoch latest --coord_row_major
+
+# 6. CREATE Z1 FOR FICTITIOUS MAP
+
+python3 <YOUR PATH...Synt_Sat_Scripts/infer_map_instance_only.py> \
+  --checkpoints_dir checkpoints \
+  --experiment_name z1 \
+  --which_epoch latest \
+  --label_dir <YOUR.PATH/map> \
+  --instance_dir <YOUR.PATH/Synth_map/...Tiles/ins> \
+  --output_dir <NAME YOUR OUTPUT DIR> \
+  --random_latent \
+  --num_styles 3 \
+  --style_subfolders \
+  --coord_mode last2 \
+  --coord_pad 5
+
+# 7. CREATE MOSAICS FOR Z2 OF FICTITIOUS MAP
+
+python3 <YOUR PATH...Synt_Sat_Scripts/build_z2_from_z1_tiles_no_real.py> \
+  --z1_map_dir <YOUR.PATH/Synth_map/...Tiles/map> \
+  --z1_ins_dir <YOUR.PATH/Synth_map/...Tiles/ins> \
+  --z1_synth_dir <YOUR.PATH/…/Style_#> \
+  --z2_out_root <NAME YOUR OUTPUT DIR> \
+  --block 2 \
+  --tile_size 256 \
+  --guidance_size 64 \
+  --name_mode coord.
+
+# 8. CREATE Z2 OF THE FICTITIOUS MAP
+
+python3 testCG.py --name z2_cg_b16 --dataset_mode insgb --label_dir <YOUR.PATH/z2_synth_data/map>/ --image_dir <YOUR.PATH/z2_synth_data/real>/ --instance_dir <YOUR.PATH/z2_synth_data/ins>/ --how_many 999999 --load_size 256 --label_nc 8 --ins_edge --cg --netG spadebranchn --cg_size 256 --gbk_size 8 --results_dir <NAME YOUR OUTPUT DIR> --which_epoch latest --coord_row_major
+
+# 9. CREATE THE FULL MOSAIC/IMAGE
+
+If the desired, the fictitious map can be reconstructed in a single Mosaic image, this is possible since the images are exported with coordinates and allows us to combine them in a Mosaic.
+
+python3 Synt_Sat_Scripts/stitch_full_mosaic.py \
+  --tiles_dir <YOUR.PATH/Style_1> \
+  --out_path <NAME YOUR OUTPUT PNG.png>
+
+python3 Synt_Sat_Scripts/stitch_full_mosaic.py \
+  --tiles_dir <YOUR.PATH/synthesized_image> \
+  --out_path <NAME YOUR OUTPUT PNG.png>
