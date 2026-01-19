@@ -4,7 +4,7 @@
 
 This project provides a comprehensive guideline for utilizing Artificial Intelligence, specifically Generative Adversarial Networks (GANs), to produce synthetic high-resolution satellite imagery from vector maps. The workflow transforms vectorized Land Cover-Land Use data and additional geographic features represented as polygons into realistic satellite imagery.
 
-![Alt text](Github image.png)
+![Alt text](Github_image.png)
 
 ## Key Features
 
