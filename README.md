@@ -27,7 +27,7 @@ The project leverages Generative Adversarial Networks to learn the mapping betwe
 
 If you use this work, please cite:
 - Zhu & Kelly (2021) [Original methodology]
-- [Your thesis/project citation]
+- Lira-Mijares (2026) [Thesis project workflow]
 
 ## Contact
 
