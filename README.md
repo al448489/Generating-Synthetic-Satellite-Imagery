@@ -4,6 +4,8 @@
 
 This is the repositorty from the Master's thesis project "Generating Synthetic Satellite Imagery Using Generative AI and Geospatial Vector Reference Data for Fictitious Country Simulations" (Lira-Mijares, 2026). This project provides a comprehensive guideline for utilizing Artificial Intelligence, specifically Generative Adversarial Networks (GANs), to produce synthetic high-resolution satellite imagery from vector maps. The workflow transforms vectorized Land Cover-Land Use data and additional geographic features represented as polygons into realistic satellite imagery.
 
+To work along this workflow methodology, please refer to the document of the thesis project to better understand the steps and replicate the outputs with your own data.
+
 ![Alt text](Github_image.png)
 
 ## Key Features
@@ -15,7 +17,7 @@ This is the repositorty from the Master's thesis project "Generating Synthetic S
 
 ## Background
 
-This work is based on the methodology presented by Zhu & Kelly (2021). The primary distinction of this implementation is its focus on creating realistic synthetic imagery for locations that have no existing real-world reference, whereas the original work utilized reference imagery from existing places for enhancing purposes.
+This work is based on the methodology "Seamless Satellite image Synthesis" presented by Zhu & Kelly (2021). The primary distinction of this implementation is its focus on creating realistic synthetic imagery for locations that have no existing real-world reference, whereas the original work utilized reference imagery from existing places for enhancing purposes.
 
 ## Methodology
 
